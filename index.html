@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Meteng Prest - Serviços</title>
+<style>
+:root{
+  --primary:#0b5ed7;
+  --accent:#005eff;
+  --bg:#f7f9fc;
+  --card:#fff;
+  --muted:#666;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial;background:var(--bg);color:#0b1723}
+.container{max-width:1100px;margin:0 auto;padding:18px}
+.header{background:var(--primary);color:#fff;padding:16px;border-radius:6px}
+.header .brand{display:flex;gap:12px;align-items:center}
+.header img{height:64px;width:64px;border-radius:8px;object-fit:cover}
+h1,h2{margin:0 0 8px 0}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:18px}
+.card{background:var(--card);border-radius:10px;overflow:hidden;box-shadow:0 6px 18px rgba(10,20,40,0.06);display:flex;flex-direction:column}
+.card .thumb{height:200px;object-fit:cover;width:100%}
+.card .body{padding:12px;flex:1;display:flex;flex-direction:column}
+.price{font-weight:800;color:var(--accent)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;text-decoration:none;display:inline-block;border:none;cursor:pointer;font-weight:700}
+.btn.alt{background:#fff;color:var(--accent);border:2px solid var(--accent)}
+.btn.warn{background:#ff9800;color:#fff}
+.btn.green{background:#28a745}
+.small{font-size:13px;color:var(--muted)}
+.section{margin-top:22px}
+.form{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(10,20,40,0.04)}
+.form label{display:block;margin:8px 0;font-weight:600}
+input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e6;margin-top:6px}
+.location-row{display:flex;gap:8px;align-items:center}
+.footer{margin-top:22px;padding:14px;text-align:center;color:#fff;background:#0c1220;border-radius:6px}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:9999}
+.modal .box{background:#fff;padding:16px;border-radius:10px;max-width:920px;width:94%;max-height:86vh;overflow:auto}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.gallery-grid img{width:100%;height:110px;object-fit:cover;border-radius:8px}
+@media(max-width:700px){ .card .thumb{height:140px} .services-grid{grid-template-columns:1fr} .gallery-grid img{height:90px} }
+.badge{background:rgba(8,47,122,0.95);color:#fff;padding:6px 8px;border-radius:8px;font-weight:700;position:absolute;right:12px;top:12px}
+.card-header{position:relative}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="brand">
+      <img src="https://drive.google.com/uc?export=view&id=1vRgSIjTuwHkheirT1M4h6O-Mq6rAtU2a" alt="Logo Meteng Prest">
+      <div>
+        <h1>Meteng Prest</h1>
+        <div class="small">Serviços Gerais — Canalização, Mobiliário, Instalações e Informática</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <h2>Serviços (clique para ver detalhes)</h2>
+    <div id="services" class="services-grid"></div>
+  </section>
+
+  <section id="agendar" class="section">
+    <h2>Agendar Serviço</h2>
+    <div class="form">
+      <form id="bookingForm">
+        <label>Nome</label>
+        <input id="name" type="text" required>
+        <label>Telefone (WhatsApp)</label>
+        <input id="phone" type="tel" placeholder="+244..." />
+        <label>Serviço</label>
+        <select id="serviceSelect" required></select>
+        <p id="previewPrice" class="small">A partir de: -</p>
+
+        <label>Opção (Orçamento)</label>
+        <div style="display:flex;gap:8px">
+          <button id="chooseNormal" type="button" class="btn">Orçamento Normal</button>
+          <button id="chooseMedio" type="button" class="btn alt">Orçamento Médio</button>
+        </div>
+
+        <label>Data</label>
+        <input id="date" type="date" required>
+        <label>Hora</label>
+        <input id="time" type="time" required>
+
+        <label>Endereço</label>
+        <input id="address" type="text" placeholder="Rua, número, cidade">
+
+        <div class="location-row" style="margin-top:8px">
+          <button id="getLocation" type="button" class="btn alt">Obter localização</button>
+          <div id="locText" class="small"></div>
+        </div>
+
+        <label>Observações</label>
+        <textarea id="notes" rows="3"></textarea>
+
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button type="submit" class="btn">Enviar Agendamento</button>
+          <button id="openContract" type="button" class="btn alt">Ver Contrato</button>
+        </div>
+        <div id="bookingMsg" class="small" style="margin-top:10px"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Histórico</h2>
+    <div id="history" class="form small">Nenhum agendamento ainda.</div>
+  </section>
+
+  <footer class="footer">
+    © <span id="yr"></span> Meteng Prest — Contacto: <a id="waFooter" href="#" style="color:#7ad3ff" target="_blank">WhatsApp</a> • Email: <a href="mailto:abelf5477@gmail.com">abelf5477@gmail.com</a>
+  </footer>
+</div>
+
+<!-- GALLERY MODAL -->
+<div id="galleryModal" class="modal" aria-hidden="true">
+  <div class="box">
+    <button id="closeGallery" class="btn alt">Fechar</button>
+    <div id="galleryInner" style="margin-top:12px" class="gallery-grid"></div>
+  </div>
+</div>
+
+<!-- DISCOUNT CHOICE MODAL -->
+<div id="discountModal" class="modal" aria-hidden="true">
+  <div class="box">
+    <h3>Orçamento com Desconto</h3>
+    <p class="small">Escolha como prefere conversar sobre o desconto:</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button id="openTawk" class="btn green">Abrir chat no site</button>
+      <a id="openWhats" class="btn" target="_blank" rel="noopener">Abrir no WhatsApp</a>
+      <button id="closeDiscount" class="btn alt">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRACT MODAL -->
+<div id="contractModal" class="modal" aria-hidden="true">
+  <div class="box">
+    <h3>Contrato de Prestação de Serviços</h3>
+    <div style="max-height:50vh;overflow:auto;margin-top:8px">
+      <ol>
+        <li>Serviço executado conforme solicitado; cliente confirma endereço e disponibilidade;</li>
+        <li>Pagamento conforme orçamento acordado (mão-de-obra + materiais);</li>
+        <li>Cancelamentos devem ser feitos até 24h antes;</li>
+      </ol>
+    </div>
+    <div style="margin-top:12px">
+      <button id="acceptContract" class="btn">Aceito</button>
+      <button id="closeContract" class="btn alt">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tawk.to widget (SEU CÓDIGO) -->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/689d3efa5a1d9619234c22a3/1j2j3s1au';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+
+<script>
+// ====== DADOS DOS SERVIÇOS (usando as imagens que você enviou) ======
+const WHATS_NUM = '244951244467'; // sem + para wa.me
+const services = [
+  {
+    id: 'canalizacao',
+    title: 'Canalização — Redes de esgoto e água limpa (PP-R)',
+    short: 'Redes de esgoto e água limpa — tubagem PP-R',
+    from: 150000,
+    priceNormal: 250000,
+    priceMedio: 150000,
+    imgs:[
+      'https://drive.google.com/uc?export=view&id=Jt2sXWs7sm9DCdkBIde073lA6',
+      'https://drive.google.com/uc?export=view&id=1LfwU2qZ3bRHdx4ulYX4Buk5DfB40AtWh',
+      'https://drive.google.com/uc?export=view&id=15iN3Cm6W_G9TsSpeuShhK4dk_LrgVlJE',
+      'https://drive.google.com/uc?export=view&id=1HdmZKjXDWphN3JTOzEaESwQ91_49uesS'
+    ]
+  },
+  {
+    id: 'manutencao_canalizacao',
+    title: 'Manutenção de Canalização (geral)',
+    short: 'Reparos e manutenção preventiva em canalizações',
+    from: 15000,
+    priceNormal: 25000,
+    priceMedio: 15000,
+    imgs:[
+      'https://drive.google.com/uc?export=view&id=1HNW45H-7288ePsC3oIefCEyJ2JBTtRNv',
+      'https://drive.google.com/uc?export=view&id=194ozjTiOFvMTzAB_bNRQT6b4ulDNDG64',
+      'https://drive.google.com/uc?export=view&id=14FTRNJIGduSuI4eWCMOCYmeJzwZXBOY9',
+      'https://drive.google.com/uc?export=view&id=1f2Ua9uLANQ74jyIypmJJmiT7X3v4_Xlv'
+    ]
+  },
+  {
+    id: 'instalacao_so',
+    title: 'Instalação de Sistema Operacional (Windows)',
+    short: 'Instalação de Windows, drivers e software básico',
+    from: 8000,
+    priceNormal: 10000,
+    priceMedio: 8000,
+    imgs:[
+      'https://drive.google.com/uc?export=view&id=1mfI9SuHz6z4pH-Jou13Mh_dxTAaRtzCk'
+    ]
+  },
+  {
+    id: 'lavatorio',
+    title: 'Instalação de Lavatório / Lavabos (com gavetas e sanitas)',
+    short: 'Instalação completa de lavatórios, móveis e sanitários',
+    from: 25000,
+    priceNormal: 30000,
+    priceMedio: 25000,
+    imgs:[
+      'https://drive.google.com/uc?export=view&id=1mSvKbTxI1Rml_OwEO94UpFZRSXkce44E',
+      'https://drive.google.com/uc?export=view&id=1zgxJKwPwD7CzIOr9QmzcYOvpv3xEjmst'
+    ]
+  },
+  {
+    id: 'espelho',
+    title: 'Montagem de Espelho de Sala',
+    short: 'Fixação profissional de espelhos com segurança',
+    from: 25000,
+    priceNormal: 30000,
+    priceMedio: 25000,
+    imgs:[
+      'https://drive.google.com/uc?export=view&id=1f2Ua9uLANQ74jyIypmJJmiT7X3v4_Xlv',
+      'https://drive.google.com/uc?export=view&id=1BOVp_xywh9dPEiDgUBdxDSE9JpjdebIR'
+    ]
+  },
+  {
+    id: 'mesa_jantar',
+    title: 'Montagem de Mesa de Jantar / Mesa de Centro',
+    short: 'Montagem e nivelamento de mesas domésticas',
+    from: 25000,
+    priceNormal: 30000,
+    priceMedio: 25000,
+    imgs:[
+      'https://drive.google.com/uc?export=view&id=1IwMdCDEMAId9w62ehje3d8iDBdxw5olP'
+    ]
+  },
+  {
+    id: 'termoacumulador',
+    title: 'Instalação de Termoacumulador',
+    short: 'Ligação e instalação de termoacumulador com testes',
+    from: 25000,
+    priceNormal: 30000,
+    priceMedio: 25000,
+    imgs:[
+      'https://drive.google.com/uc?export=view&id=15ZYLdhn9OY2wxh4HxR0Mz-ow3agl9J5K',
+      'https://drive.google.com/uc?export=view&id=1EqJq8oncXur6Nht7JEUKaw0Vxqk6KRu9'
+    ]
+  }
+];
+
+// ====== Helpers ======
+function formatKz(v){
+  try { return new Intl.NumberFormat('pt-PT',{style:'currency',currency:'AOA'}).format(Number(v)); }
+  catch(e){ return v + ' Kz'; }
+}
+
+// ====== Render services cards ======
+const servicesEl = document.getElementById('services');
+const selectEl = document.getElementById('serviceSelect');
+services.forEach(s=>{
+  // card
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <div class="card-header">
+      <img class="thumb" src="${s.imgs[0]}" alt="${s.title}">
+      <div class="badge">A partir de ${formatKz(s.from)}</div>
+    </div>
+    <div class="body">
+      <h3>${s.title}</h3>
+      <div class="small">${s.short}</div>
+      <div class="actions">
+        <button class="btn" data-action="normal" data-id="${s.id}">Orçamento Normal</button>
+        <button class="btn alt" data-action="medio" data-id="${s.id}">Orçamento Médio</button>
+        <button class="btn green" data-action="desconto" data-id="${s.id}">Orçamento com Desconto</button>
+        <button class="btn alt" data-action="gallery" data-id="${s.id}">Ver imagens</button>
+      </div>
+    </div>
+  `;
+  servicesEl.appendChild(card);
+
+  // select option
+  const opt = document.createElement('option'); opt.value = s.id; opt.textContent = `${s.title} — ${formatKz(s.from)}`;
+  selectEl.appendChild(opt);
+});
+
+// ====== Card actions ======
+let activeService = null;
+servicesEl.addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+  const svc = services.find(x=>x.id===id);
+  if (!svc) return;
+  if (action === 'gallery'){
+    openGallery(svc.imgs);
+  } else if (action === 'normal'){
+    selectServiceAndScroll(svc,'normal');
+  } else if (action === 'medio'){
+    selectServiceAndScroll(svc,'medio');
+  } else if (action === 'desconto'){
+    openDiscountModal(svc);
+  }
+});
+
+function selectServiceAndScroll(svc, opt){
+  document.getElementById('serviceSelect').value = svc.id;
+  chosenOption = (opt==='medio') ? 'medio' : 'normal';
+  updatePreviewPrice();
+  location.hash = '#agendar';
+  setTimeout(()=>document.getElementById('name').focus(),300);
+}
+
+// ====== Gallery ======
+const galleryModal = document.getElementById('galleryModal');
+const galleryInner = document.getElementById('galleryInner');
+document.getElementById('closeGallery').addEventListener('click', ()=>{ galleryModal.style.display='none'; galleryInner.innerHTML=''; });
+
+function openGallery(imgs){
+  galleryInner.innerHTML = '';
+  imgs.forEach(u=>{
+    const img = document.createElement('img'); img.src = u; galleryInner.appendChild(img);
+  });
+  galleryModal.style.display = 'flex';
+}
+
+// ====== Discount modal (WhatsApp + Tawk) ======
+const discountModal = document.getElementById('discountModal');
+const openWhats = document.getElementById('openWhats');
+const openTawkBtn = document.getElementById('openTawk');
+document.getElementById('closeDiscount').addEventListener('click', ()=>{ discountModal.style.display='none'; });
+
+function openDiscountModal(svc){
+  activeService = svc;
+  const text = encodeURIComponent(`Olá, gostaria de negociar o ORÇAMENTO COM DESCONTO para: ${svc.title}. Preço normal: ${svc.priceNormal ? svc.priceNormal+' Kz' : ''}. Preço médio: ${svc.priceMedio ? svc.priceMedio+' Kz' : ''}.`);
+  openWhats.href = `https://wa.me/${WHATS_NUM}?text=${text}`;
+  discountModal.style.display = 'flex';
+}
+
+// open Tawk (attempt) and show suggested message
+openTawkBtn.addEventListener('click', ()=>{
+  discountModal.style.display='none';
+  setTimeout(()=>{
+    try{
+      if (window.Tawk_API && typeof window.Tawk_API.toggle === 'function') window.Tawk_API.toggle();
+      else if (window.Tawk_API && typeof window.Tawk_API.popup === 'function') window.Tawk_API.popup();
+    }catch(e){ console.warn('Tawk not ready',e); }
+    // show suggested message to copy/paste
+    if (activeService){
+      alert(`Sugestão de mensagem para enviar no chat:\n\n"Olá, gostaria de negociar ORÇAMENTO COM DESCONTO para: ${activeService.title}. Preço normal: ${formatKz(activeService.priceNormal)}."`);
+    }
+  },500);
+});
+
+// ====== Booking form logic ======
+const bookingForm = document.getElementById('bookingForm');
+const bookingMsg = document.getElementById('bookingMsg');
+let chosenOption = 'normal';
+
+document.getElementById('chooseNormal').addEventListener('click', ()=>{ chosenOption='normal'; updatePreviewPrice(); });
+document.getElementById('chooseMedio').addEventListener('click', ()=>{ chosenOption='medio'; updatePreviewPrice(); });
+
+function updatePreviewPrice(){
+  const id = selectEl.value;
+  const svc = services.find(s=>s.id===id);
+  if(!svc){ document.getElementById('previewPrice').textContent = 'A partir de: -'; return; }
+  if (chosenOption === 'medio') document.getElementById('previewPrice').textContent = `Orçamento Médio: ${formatKz(svc.priceMedio)} (Normal: ${formatKz(svc.priceNormal)})`;
+  else document.getElementById('previewPrice').textContent = `Orçamento Normal: ${formatKz(svc.priceNormal)} • A partir de ${formatKz(svc.from)}`;
+}
+selectEl.addEventListener('change', updatePreviewPrice);
+updatePreviewPrice();
+
+bookingForm.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const serviceId = selectEl.value;
+  const svc = services.find(s=>s.id===serviceId);
+  const date = document.getElementById('date').value;
+  const time = document.getElementById('time').value;
+  const address = document.getElementById('address').value.trim();
+  const notes = document.getElementById('notes').value.trim();
+  const booking = { name, phone, serviceId, serviceTitle: svc ? svc.title : '', date, time, address, notes, option: chosenOption, preco: svc ? (chosenOption==='medio'?svc.priceMedio:svc.priceNormal) : 0, createdAt: new Date().toISOString() };
+
+  // save local
+  const raw = localStorage.getItem('meteng_bookings') || '[]';
+  const arr = JSON.parse(raw);
+  arr.unshift(booking);
+  localStorage.setItem('meteng_bookings', JSON.stringify(arr));
+  bookingMsg.textContent = 'Agendamento salvo localmente. Entraremos em contacto.';
+  bookingForm.reset();
+  updatePreviewPrice();
+  loadHistory();
+});
+
+// load history from localStorage
+function loadHistory(){
+  const raw = localStorage.getItem('meteng_bookings') || '[]';
+  const arr = JSON.parse(raw);
+  const el = document.getElementById('history');
+  if (!arr.length){ el.innerHTML = 'Nenhum agendamento ainda.'; return; }
+  el.innerHTML = '';
+  arr.forEach(b=>{
+    const d = document.createElement('div');
+    d.className = 'small';
+    d.style.marginBottom = '10px';
+    d.innerHTML = `<strong>${b.serviceTitle}</strong> — ${b.date} ${b.time} <br> ${b.name} • ${b.phone || '-'} <br> ${b.address || '-'} <div style="color:var(--muted)">Opção: ${b.option} • Preço: ${formatKz(b.preco)}</div>`;
+    el.appendChild(d);
+  });
+}
+loadHistory();
+
+// geolocation
+document.getElementById('getLocation').addEventListener('click', ()=>{
+  const locText = document.getElementById('locText');
+  if (!navigator.geolocation){ locText.textContent = 'Geolocalização não suportada.'; return; }
+  locText.textContent = 'Obtendo...';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    locText.innerHTML = `Local obtido: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)} — <a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${pos.coords.latitude},${pos.coords.longitude}">ver no mapa</a>`;
+  }, err=>{
+    locText.textContent = 'Permissão negada ou erro.';
+  }, {timeout:10000});
+});
+
+// contract modal
+document.getElementById('openContract').addEventListener('click', ()=>{ document.getElementById('contractModal').style.display='flex'; });
+document.getElementById('closeContract').addEventListener('click', ()=>{ document.getElementById('contractModal').style.display='none'; });
+document.getElementById('acceptContract').addEventListener('click', ()=>{ localStorage.setItem('meteng_contract_accepted','true'); alert('Contrato aceite. Obrigado!'); document.getElementById('contractModal').style.display='none'; });
+
+// footer whatsapp link
+document.getElementById('waFooter').href = `https://wa.me/${WHATS_NUM}`;
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// close modals clicking outside
+window.addEventListener('click', (ev)=>{
+  const gm = document.getElementById('galleryModal');
+  const dm = document.getElementById('discountModal');
+  const cm = document.getElementById('contractModal');
+  if (ev.target === gm) gm.style.display='none';
+  if (ev.target === dm) dm.style.display='none';
+  if (ev.target === cm) cm.style.display='none';
+});
+</script>
+
+</body>
+</html>
