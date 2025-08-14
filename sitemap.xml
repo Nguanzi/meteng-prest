@@ -9,7 +9,7 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Seções importantes como páginas independentes -->
+  <!-- Página de serviços -->
   <url>
     <loc>https://nguanzi.github.io/meteng-prest/services.html</loc>
     <lastmod>2025-08-14</lastmod>
@@ -17,6 +17,7 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Página de agendamento -->
   <url>
     <loc>https://nguanzi.github.io/meteng-prest/agendar.html</loc>
     <lastmod>2025-08-14</lastmod>
@@ -24,6 +25,7 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Página de histórico -->
   <url>
     <loc>https://nguanzi.github.io/meteng-prest/history.html</loc>
     <lastmod>2025-08-14</lastmod>
@@ -32,4 +34,5 @@
   </url>
 
 </urlset>
+
 
